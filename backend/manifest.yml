@@ -1,0 +1,108 @@
+name: FoodApp
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - name: email
+        type: email
+      - name: role
+        type: choice
+        options:
+          values: [chef, admin]
+        default: chef
+    policies:
+      create:
+        - access: admin
+      read:
+        - access: restricted
+          allow: User
+          condition: self
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  Restaurant:
+    properties:
+      - name: name
+        type: string
+      - name: description
+        type: text
+      - name: cuisine
+        type: string
+        helpText: e.g., Italian, Mexican, etc.
+      - name: image
+        type: image
+        options:
+          sizes:
+            thumbnail:
+              width: 400
+              height: 400
+            large:
+              width: 1024
+              height: 768
+    belongsTo:
+      - name: owner
+        entity: User
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+  MenuItem:
+    properties:
+      - name: name
+        type: string
+      - name: description
+        type: text
+      - name: price
+        type: money
+        options:
+          currency: 'USD'
+      - name: category
+        type: string
+        helpText: e.g., Appetizer, Main, Dessert
+    belongsTo:
+      - name: restaurant
+        entity: Restaurant
+      - name: owner
+        entity: User
+    policies:
+      create:
+        - access: restricted
+          allow: User
+      read:
+        - access: public
+      update:
+        - access: restricted
+          allow: User
+          condition: self
+      delete:
+        - access: restricted
+          allow: User
+          condition: self
+
+
+# Health check endpoint for connection testing
+endpoints:
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
